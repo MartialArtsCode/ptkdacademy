@@ -1,0 +1,43 @@
+name: Jekyll site CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v6.0.0
+        with:
+          always-auth: false  # optional
+          node-version: '14.x'  # specify Node.js version
+
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v6.0.0
+        with:
+          name: ''  # optional: specify if needed
+          artifact-ids: ''  # optional: specify if needed
+          path: ''  # optional: specify destination path
+          pattern: ''  # optional: specify glob pattern
+          merge-multiple: false  # optional
+          github-token: ''  # optional
+          repository: ''  # optional
+          run-id: ''  # optional
+      
+      - name: Cache Node Modules
+        uses: actions/cache@v4.3.0
+        with:
+          path: ~/.npm  # Caching npm modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}  # Unique cache key
+          restore-keys: |
+            ${{ runner.os }}-npm-
+            ${{ runner.os }}-
+

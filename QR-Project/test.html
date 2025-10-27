@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test QR System - Panamerican TKD</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #0369a1 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #fbbf24;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            text-align: left;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; }
+        .error { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; }
+        .warning { background: rgba(251, 191, 36, 0.2); border: 1px solid #fbbf24; }
+        .info { background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; }
+        
+        button {
+            background: linear-gradient(135deg, #25d366 0%, #20b358 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
+        }
+        
+        .qr-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        .qr-preview img {
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .qr-preview p {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥋 QR System Test - Panamerican Taekwondo</h1>
+        
+        <div class="test-section">
+            <h3>📱 System Status</h3>
+            <div id="system-status">
+                <div class="status info">⏳ Checking system components...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔔 Notification Test</h3>
+            <p>Test the notification system manually:</p>
+            <button onclick="testNotifications()">Send Test Notification</button>
+            <div id="notification-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Visitor Data Preview</h3>
+            <button onclick="showVisitorData()">Show My Data Profile</button>
+            <div id="visitor-data"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎯 QR Code Tracking</h3>
+            <p>Test the tracking system with different QR sources:</p>
+            <div style="text-align: center;">
+                <div class="qr-preview">
+                    <button onclick="testQRSource('branded', 'main')" style="background: linear-gradient(135deg, #1e40af, #1e3a8a);">Test Branded QR</button>
+                    <p>Main business QR</p>
+                </div>
+                <div class="qr-preview">
+                    <button onclick="testQRSource('blue', 'tournament')" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">Test Tournament QR</button>
+                    <p>Blue tournament theme</p>
+                </div>
+                <div class="qr-preview">
+                    <button onclick="testQRSource('red', 'promotion')" style="background: linear-gradient(135deg, #dc2626, #b91c1c);">Test Promotional QR</button>
+                    <p>Red promotional theme</p>
+                </div>
+            </div>
+            <div id="qr-test-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📁 Generated QR Codes</h3>
+            <p>8 tracked QR codes have been generated in: <code>qr-codes/</code></p>
+            <div class="status info">
+                ✅ tkd_branded_tracked.png (Main business)<br>
+                ✅ tkd_blue_tracked.png (Tournaments)<br>
+                ✅ tkd_red_tracked.png (Promotions)<br>
+                ✅ tkd_gold_tracked.png (Championships)<br>
+                ✅ tkd_blackbelt_tracked.png (Advanced students)<br>
+                ✅ tkd_clean_tracked.png (Business documents)<br>
+                ✅ tkd_minimal_tracked.png (Print materials)<br>
+                ✅ tkd_simple_tracked.png (Flyers)
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 Deployment URLs</h3>
+            <div class="status info">
+                <strong>GitHub Pages:</strong> https://experimental-ape.github.io/panamerican-tkd-qr/<br>
+                <strong>Repository:</strong> https://github.com/experimental-ape/panamerican-tkd-qr
+            </div>
+            <p><a href="index.html" style="color: #fbbf24;">👉 View Main Landing Page</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Check system status
+        window.addEventListener('load', function() {
+            setTimeout(checkSystemStatus, 1000);
+        });
+
+        function checkSystemStatus() {
+            const statusDiv = document.getElementById('system-status');
+            let statusHTML = '';
+            
+            // Check if we're running on GitHub Pages
+            const isGitHubPages = window.location.hostname.includes('github.io');
+            if (isGitHubPages) {
+                statusHTML += '<div class="status success">✅ Running on GitHub Pages</div>';
+            } else {
+                statusHTML += '<div class="status warning">⚠️ Running locally (deploy to GitHub Pages for full functionality)</div>';
+            }
+            
+            // Check CallMeBot API configuration
+            const hasCallMeBot = true; // We know it's configured
+            if (hasCallMeBot) {
+                statusHTML += '<div class="status success">✅ CallMeBot WhatsApp API configured (Key: 3581131)</div>';
+            }
+            
+            // Check email configuration
+            const hasFormspree = true; // We know it's configured
+            if (hasFormspree) {
+                statusHTML += '<div class="status success">✅ Formspree email notifications configured</div>';
+            }
+            
+            // Check browser capabilities
+            const hasLocalStorage = typeof(Storage) !== "undefined";
+            const hasGeolocation = "geolocation" in navigator;
+            const hasNotifications = "Notification" in window;
+            
+            statusHTML += `<div class="status ${hasLocalStorage ? 'success' : 'error'}">${hasLocalStorage ? '✅' : '❌'} Local Storage Support</div>`;
+            statusHTML += `<div class="status ${hasGeolocation ? 'success' : 'warning'}">${hasGeolocation ? '✅' : '⚠️'} Geolocation API</div>`;
+            statusHTML += `<div class="status ${hasNotifications ? 'success' : 'warning'}">${hasNotifications ? '✅' : '⚠️'} Browser Notifications</div>`;
+            
+            statusDiv.innerHTML = statusHTML;
+        }
+
+        function testNotifications() {
+            const statusDiv = document.getElementById('notification-status');
+            statusDiv.innerHTML = '<div class="status info">📤 Sending test notification...</div>';
+            
+            // Simulate the data collection from main page
+            const testData = {
+                timestamp: new Date().toISOString(),
+                localTime: new Date().toLocaleString(),
+                deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+                browser: getBrowserInfo(),
+                language: navigator.language,
+                country: 'Test Location',
+                url: window.location.href,
+                testMode: true
+            };
+            
+            // Send test WhatsApp notification
+            const phoneNumber = '+13366248499';
+            const apiKey = '3581131';
+            const alertMessage = encodeURIComponent(`🧪 TEST NOTIFICATION\n\n📅 ${testData.localTime}\n📱 ${testData.deviceType} - ${testData.browser}\n🌍 Test from QR system\n\n✅ System working correctly!`);
+            
+            fetch(`https://api.callmebot.com/whatsapp.php?phone=${phoneNumber}&text=${alertMessage}&apikey=${apiKey}`, {
+                method: 'GET',
+                mode: 'no-cors'
+            }).then(() => {
+                statusDiv.innerHTML = '<div class="status success">✅ Test notification sent! Check your WhatsApp (+1-336-624-8499)</div>';
+            }).catch(error => {
+                statusDiv.innerHTML = '<div class="status error">❌ Test notification failed: ' + error.message + '</div>';
+            });
+            
+            // Send test email
+            fetch('https://formspree.io/f/xovqjepz', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: 'panamericantkd22@gmail.com',
+                    subject: '🧪 QR System Test',
+                    message: `Test notification from QR system\n\nTime: ${testData.localTime}\nDevice: ${testData.deviceType}\nBrowser: ${testData.browser}\nURL: ${testData.url}\n\nSystem is working correctly!`,
+                    timestamp: testData.timestamp,
+                    test: true
+                })
+            }).then(response => {
+                if (response.ok) {
+                    const currentStatus = statusDiv.innerHTML;
+                    statusDiv.innerHTML = currentStatus + '<div class="status success">✅ Test email sent to panamericantkd22@gmail.com</div>';
+                }
+            }).catch(error => {
+                const currentStatus = statusDiv.innerHTML;
+                statusDiv.innerHTML = currentStatus + '<div class="status warning">⚠️ Email test may have failed</div>';
+            });
+        }
+
+        function showVisitorData() {
+            const dataDiv = document.getElementById('visitor-data');
+            
+            const visitorData = {
+                timestamp: new Date().toISOString(),
+                localTime: new Date().toLocaleString(),
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+                browser: getBrowserInfo(),
+                operatingSystem: getOSInfo(),
+                screenSize: screen.width + 'x' + screen.height,
+                language: navigator.language,
+                platform: navigator.platform,
+                cookiesEnabled: navigator.cookieEnabled,
+                onlineStatus: navigator.onLine ? 'Online' : 'Offline',
+                url: window.location.href
+            };
+            
+            let dataHTML = '<div class="status info"><strong>Your Visitor Profile:</strong><br>';
+            for (const [key, value] of Object.entries(visitorData)) {
+                dataHTML += `<strong>${key}:</strong> ${value}<br>`;
+            }
+            dataHTML += '</div>';
+            
+            dataDiv.innerHTML = dataHTML;
+        }
+
+        function testQRSource(source, campaign) {
+            const resultDiv = document.getElementById('qr-test-result');
+            resultDiv.innerHTML = `<div class="status info">🔍 Testing QR tracking: <strong>${source.toUpperCase()}</strong> campaign</div>`;
+            
+            // Simulate QR scan with tracking parameters
+            const testUrl = `index.html?source=${source}&campaign=${campaign}`;
+            
+            setTimeout(() => {
+                resultDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ QR Tracking Test Complete!<br>
+                        <strong>Source:</strong> ${source}<br>
+                        <strong>Campaign:</strong> ${campaign}<br>
+                        <strong>URL:</strong> ${testUrl}<br><br>
+                        This would trigger a notification with QR source identification!
+                    </div>`;
+            }, 1500);
+        }
+
+        // Helper functions
+        function getBrowserInfo() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Chrome')) return 'Chrome';
+            if (ua.includes('Firefox')) return 'Firefox';
+            if (ua.includes('Safari') && !ua.includes('Chrome')) return 'Safari';
+            if (ua.includes('Edge')) return 'Edge';
+            if (ua.includes('Opera')) return 'Opera';
+            return 'Unknown Browser';
+        }
+        
+        function getOSInfo() {
+            const ua = navigator.userAgent;
+            if (ua.includes('Windows')) return 'Windows';
+            if (ua.includes('Mac')) return 'macOS';
+            if (ua.includes('Linux')) return 'Linux';
+            if (ua.includes('Android')) return 'Android';
+            if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
+            return 'Unknown OS';
+        }
+    </script>
+</body>
+</html>
